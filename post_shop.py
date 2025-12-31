@@ -2,8 +2,10 @@ import os
 import requests
 from datetime import datetime
 
+# Discord webhook from GitHub Secrets
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
+# Fortnite.gg rendered Item Shop image (auto-updates daily)
 SHOP_IMAGE_URL = "https://fortnite.gg/img/shop.png"
 
 def main():
@@ -29,8 +31,8 @@ def main():
         ]
     }
 
-    r = requests.post(WEBHOOK_URL, json=payload, timeout=10)
-    r.raise_for_status()
+    response = requests.post(WEBHOOK_URL, json=payload, timeout=10)
+    response.raise_for_status()
 
 if __name__ == "__main__":
     main()
