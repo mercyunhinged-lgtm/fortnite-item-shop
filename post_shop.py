@@ -2,23 +2,31 @@ import os
 import requests
 from datetime import datetime
 
+# Required secrets
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
+FORTNITE_API_KEY = os.getenv("FORTNITE_API_KEY")
 
-# CURRENT Fortnite Item Shop endpoint (stable)
-API_URL = "https://fortnite-api.com/v2/shop/br?language=en"
+# Fortnite Item Shop endpoint (current + supported)
+API_URL = "https://fortnite-api.com/v2/shop/br"
 
 def main():
     if not WEBHOOK_URL:
-        raise RuntimeError("DISCORD_WEBHOOK_URL secret is missing")
+        raise RuntimeError("DISCORD_WEBHOOK_URL is missing")
+    if not FORTNITE_API_KEY:
+        raise RuntimeError("FORTNITE_API_KEY is missing")
 
-    # Fetch shop
-    r = requests.get(API_URL, timeout=20)
-    r.raise_for_status()
-    data = r.json()
+    headers = {
+        "Authorization": FORTNITE_API_KEY
+    }
+
+    # Fetch Item Shop
+    response = requests.get(API_URL, headers=headers, timeout=20)
+    response.raise_for_status()
+    data = response.json()
 
     entries = data.get("data", {}).get("entries", [])
     if not entries:
-        raise RuntimeError("No shop entries returned from Fortnite API")
+        raise RuntimeError("No Item Shop entries returned")
 
     embeds = []
     today = datetime.utcnow().strftime("%B %d, %Y")
@@ -29,8 +37,8 @@ def main():
             continue
 
         item = items[0]
-
         images = item.get("images", {})
+
         image_url = (
             images.get("featured")
             or images.get("icon")
@@ -44,7 +52,7 @@ def main():
             "title": item.get("name", "Fortnite Item"),
             "description": "🛒 **Today’s Fortnite Item Shop**",
             "image": {"url": image_url},
-            "color": 0xE6B7FF,
+            "color": 0xE6B7FF,  # pastel pink/purple
             "footer": {
                 "text": "Don’t forget to use code: msdreams ☁️💖"
             }
@@ -53,7 +61,7 @@ def main():
         embeds.append(embed)
 
         # Discord hard limit: max 10 embeds per message
-        if len(embeds) == 10:
+        if len(embeds) >= 10:
             break
 
     payload = {
