@@ -2,11 +2,10 @@ import os
 import requests
 from datetime import datetime
 
-# Required secrets
+# Secrets from GitHub Actions
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 FORTNITE_API_KEY = os.getenv("FORTNITE_API_KEY")
 
-# Fortnite Item Shop endpoint (current + supported)
 API_URL = "https://fortnite-api.com/v2/shop/br"
 
 def main():
@@ -19,14 +18,14 @@ def main():
         "Authorization": FORTNITE_API_KEY
     }
 
-    # Fetch Item Shop
+    # Fetch item shop
     response = requests.get(API_URL, headers=headers, timeout=20)
     response.raise_for_status()
     data = response.json()
 
     entries = data.get("data", {}).get("entries", [])
     if not entries:
-        raise RuntimeError("No Item Shop entries returned")
+        raise RuntimeError("No shop entries returned")
 
     embeds = []
     today = datetime.utcnow().strftime("%B %d, %Y")
@@ -48,19 +47,17 @@ def main():
         if not image_url:
             continue
 
-        embed = {
+        embeds.append({
             "title": item.get("name", "Fortnite Item"),
             "description": "🛒 **Today’s Fortnite Item Shop**",
             "image": {"url": image_url},
-            "color": 0xE6B7FF,  # pastel pink/purple
+            "color": 0xE6B7FF,
             "footer": {
                 "text": "Don’t forget to use code: msdreams ☁️💖"
             }
-        }
+        })
 
-        embeds.append(embed)
-
-        # Discord hard limit: max 10 embeds per message
+        # Discord limit
         if len(embeds) >= 10:
             break
 
