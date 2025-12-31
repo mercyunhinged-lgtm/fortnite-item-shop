@@ -17,9 +17,9 @@ def main():
         "Authorization": FORTNITE_API_KEY
     }
 
-    response = requests.get(API_URL, headers=headers, timeout=10)
-    response.raise_for_status()
-    data = response.json()
+    r = requests.get(API_URL, headers=headers, timeout=10)
+    r.raise_for_status()
+    data = r.json()
 
     entries = data.get("data", {}).get("entries", [])
     if not entries:
@@ -34,13 +34,9 @@ def main():
             continue
 
         item = items[0]
-        images = item.get("images", {})
 
-        image_url = (
-            images.get("featured")
-            or images.get("icon")
-            or images.get("smallIcon")
-        )
+        # CORRECT image location
+        image_url = item.get("displayAssets", [{}])[0].get("full_background")
 
         if not image_url:
             continue
@@ -56,6 +52,10 @@ def main():
 
         if len(embeds) >= 10:
             break
+
+    # SAFETY CHECK — NEVER POST EMPTY
+    if not embeds:
+        raise RuntimeError("No embeds created — API returned no usable images")
 
     payload = {
         "content": f"🛒 **Fortnite Item Shop — {today}**",
