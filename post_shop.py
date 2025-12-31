@@ -21,45 +21,36 @@ def main():
     r.raise_for_status()
     data = r.json()
 
-    entries = data.get("data", {}).get("entries", [])
+    shop = data.get("data", {})
+    entries = shop.get("entries", [])
     if not entries:
         raise RuntimeError("No shop entries returned")
 
-    embeds = []
+    # 🔹 Try to get a SHOP-LEVEL image (most reliable)
+    banner_image = None
+    for entry in entries:
+        assets = entry.get("displayAssets", [])
+        if assets:
+            banner_image = assets[0].get("full_background")
+            if banner_image:
+                break
+
     today = datetime.utcnow().strftime("%B %d, %Y")
 
-    for entry in entries:
-        items = entry.get("items", [])
-        if not items:
-            continue
+    embed = {
+        "title": f"Fortnite Item Shop — {today}",
+        "description": "🛒 The Item Shop has refreshed!\n\nDon’t forget to use code **msdreams** ☁️💖",
+        "color": 0xE6B7FF,
+        "footer": {
+            "text": "Supporting the creator helps keep the Dream alive 💭"
+        }
+    }
 
-        item = items[0]
-
-        # CORRECT image location
-        image_url = item.get("displayAssets", [{}])[0].get("full_background")
-
-        if not image_url:
-            continue
-
-        embeds.append({
-            "title": item.get("name", "Fortnite Item"),
-            "image": {"url": image_url},
-            "color": 0xE6B7FF,
-            "footer": {
-                "text": "Don’t forget to use code: msdreams ☁️💖"
-            }
-        })
-
-        if len(embeds) >= 10:
-            break
-
-    # SAFETY CHECK — NEVER POST EMPTY
-    if not embeds:
-        raise RuntimeError("No embeds created — API returned no usable images")
+    if banner_image:
+        embed["image"] = {"url": banner_image}
 
     payload = {
-        "content": f"🛒 **Fortnite Item Shop — {today}**",
-        "embeds": embeds
+        "embeds": [embed]
     }
 
     post = requests.post(WEBHOOK_URL, json=payload, timeout=10)
