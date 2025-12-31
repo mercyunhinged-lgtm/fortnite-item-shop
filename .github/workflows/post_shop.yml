@@ -2,7 +2,7 @@ name: Post Fortnite Item Shop
 
 on:
   schedule:
-    - cron: "0 0 * * *" # 00:00 UTC = Fortnite shop reset (4/5 PM California)
+    - cron: "0 0 * * *" # 00:00 UTC = Item Shop reset
   workflow_dispatch:
 
 jobs:
