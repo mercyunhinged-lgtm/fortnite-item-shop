@@ -17,9 +17,9 @@ def main():
         "Authorization": FORTNITE_API_KEY
     }
 
-    r = requests.get(API_URL, headers=headers, timeout=20)
-    r.raise_for_status()
-    data = r.json()
+    response = requests.get(API_URL, headers=headers, timeout=10)
+    response.raise_for_status()
+    data = response.json()
 
     entries = data.get("data", {}).get("entries", [])
     if not entries:
@@ -39,4 +39,31 @@ def main():
         image_url = (
             images.get("featured")
             or images.get("icon")
-            or images.get("small
+            or images.get("smallIcon")
+        )
+
+        if not image_url:
+            continue
+
+        embeds.append({
+            "title": item.get("name", "Fortnite Item"),
+            "image": {"url": image_url},
+            "color": 0xE6B7FF,
+            "footer": {
+                "text": "Don’t forget to use code: msdreams ☁️💖"
+            }
+        })
+
+        if len(embeds) >= 10:
+            break
+
+    payload = {
+        "content": f"🛒 **Fortnite Item Shop — {today}**",
+        "embeds": embeds
+    }
+
+    post = requests.post(WEBHOOK_URL, json=payload, timeout=10)
+    post.raise_for_status()
+
+if __name__ == "__main__":
+    main()
