@@ -1,0 +1,30 @@
+name: Post Fortnite Item Shop Screenshot
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # 00:00 UTC = shop reset (4/5 PM California)
+  workflow_dispatch:
+
+jobs:
+  screenshot-post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install requests playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Screenshot and post to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python post_shop_screenshot.py
