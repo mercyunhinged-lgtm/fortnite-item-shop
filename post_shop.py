@@ -14,26 +14,16 @@ def main():
     payload = {
         "embeds": [
             {
+                # 👇 TITLE IS CLICKABLE
                 "title": f"Fortnite Item Shop — {today}",
+                "url": ITEM_SHOP_URL,
+
                 "description": (
                     "🛒 **The Item Shop has refreshed!**\n\n"
-                    "Tap the button below to view today’s shop.\n\n"
+                    f"👉 **[CLICK HERE TO OPEN THE ITEM SHOP]({ITEM_SHOP_URL})**\n\n"
                     "Don’t forget to use code **msdreams** ☁️💖"
                 ),
                 "color": 0xE6B7FF
-            }
-        ],
-        "components": [
-            {
-                "type": 1,
-                "components": [
-                    {
-                        "type": 2,
-                        "style": 5,  # LINK BUTTON
-                        "label": "Open Fortnite Item Shop",
-                        "url": ITEM_SHOP_URL
-                    }
-                ]
             }
         ]
     }
