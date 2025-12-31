@@ -4,7 +4,7 @@ from datetime import datetime
 
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
-API_URL = "https://fortnite-api.com/v2/shop/br/combined?language=en"
+API_URL = "https://fortnite-api.com/v2/shop/br?language=en"
 
 def main():
     if not WEBHOOK_URL:
